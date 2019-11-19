@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import PrimaryForm from './components/PrimaryForm';
 
 const AppContainer = styled.main`
   display: flex;
@@ -8,11 +9,17 @@ const AppContainer = styled.main`
   margin: 0 auto;
   min-height: 100vh;
   padding: 0;
+
+  --pink: rgb(225, 43, 152);
+
+  * {
+    box-sizing: border-box;
+  }
 `;
 
 const App = () => (
   <AppContainer>
-    <h1>Hello World!</h1>
+    <PrimaryForm />
   </AppContainer>
 );
 
