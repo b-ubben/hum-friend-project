@@ -1,39 +1,18 @@
 import React from 'react';
-import styled from 'styled-components';
 import {
   Formik,
   Form,
   Field,
   FieldArray,
 } from 'formik';
-
-const FormSection = styled.section`
-  display: ${(props) => (props.isVisible ? 'flex' : 'none')};
-    flex-direction: column;
-
-  div > * {
-    width: 50%;
-  }
-`;
-
-const NextButton = styled.button`
-  background: var(--pink);
-  border: 1px solid transparent;
-  color: white;
-  display: block;
-  font-weight: bold;
-  width: 100%;
-`;
-
-const SubmitButton = styled.button`
-  background: var(--pink);
-  border: 1px solid transparent;
-  color: white;
-  display: block;
-  font-weight: bold;
-  max-width: 250px;
-  width: 100%;
-`;
+import FormSection from './ui/FormSection';
+import NextButton from './ui/NextButton';
+import SubmitButton from './ui/SubmitButton';
+import NameAndAgeWrapper from './ui/NameAndAgeWrapper';
+import FriendWrapper from './ui/FriendWrapper';
+import StartOverButton from './ui/StartOverButton';
+import NameAndAgeSummary from './ui/NameAndAgeSummary';
+import FriendsSummary from './ui/FriendsSummary';
 
 const PrimaryForm = () => {
   const initState = {
@@ -42,7 +21,7 @@ const PrimaryForm = () => {
     summaryIsVisible: false,
   };
   const [formState, setFormState] = React.useState(initState);
-  const { nameAndAgeIsVisible, friendsIsVisible } = formState;
+  const { nameAndAgeIsVisible, friendsIsVisible, summaryIsVisible } = formState;
 
   function handleNameAndAge(e) {
     e.preventDefault();
@@ -62,8 +41,7 @@ const PrimaryForm = () => {
         friend: '',
         friends: [],
       }}
-      onSubmit={(values) => {
-        console.log(values);
+      onSubmit={() => {
         setFormState({
           ...formState,
           friendsIsVisible: false,
@@ -71,20 +49,20 @@ const PrimaryForm = () => {
         });
       }}
     >
-      {({ values }) => (
+      {({ values, setFieldValue, resetForm }) => (
         <Form>
           <FormSection isVisible={nameAndAgeIsVisible}>
-            <div>
+            <NameAndAgeWrapper>
               <div>
                 <label htmlFor="name">Name:</label>
-                <Field type="input" name="name" />
+                <Field type="input" name="name" placeholder="Name" />
               </div>
 
               <div>
                 <label htmlFor="name">Age:</label>
-                <Field type="number" name="age" />
+                <Field type="number" name="age" placeholder="Age" />
               </div>
-            </div>
+            </NameAndAgeWrapper>
             <NextButton onClick={handleNameAndAge}>NEXT</NextButton>
           </FormSection>
 
@@ -93,15 +71,65 @@ const PrimaryForm = () => {
               name="friends"
               render={(arrayHelpers) => (
                 <>
-                  <label htmlFor="friend">Friend Name:</label>
-                  <div>
-                    <Field name="friend" placeholder="friend" />
-                    <button type="button" onClick={() => arrayHelpers.push(values.friend)}>+</button>
-                  </div>
+                  <FriendWrapper>
+                    <label htmlFor="friend">Friend Name:</label>
+                    <div>
+                      <Field type="text" name="friend" placeholder="friend" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          arrayHelpers.push(values.friend);
+                          setFieldValue('friend', '');
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </FriendWrapper>
+                  {values.friends.length > 0 && (
+                    <ul>
+                      {values.friends.map((friend, index) => (
+                        <li key={friend}>
+                          <p>{friend}</p>
+                          <button type="button" onClick={() => arrayHelpers.remove(index)}>-</button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </>
               )}
             />
             <SubmitButton type="submit">SUBMIT</SubmitButton>
+          </FormSection>
+
+          <FormSection isVisible={summaryIsVisible}>
+            <NameAndAgeSummary>
+              <p>
+                name:
+                {` ${values.name}`}
+              </p>
+              <p>
+                age:
+                {` ${values.age}`}
+              </p>
+            </NameAndAgeSummary>
+
+            <FriendsSummary>
+              <strong>Friends:</strong>
+              {values.friends.map((friend, index) => (
+                <p key={friend}>{`Friend #${index}.${friend}`}</p>
+              ))}
+
+              <StartOverButton
+                type="button"
+                onClick={() => {
+                  resetForm({});
+                  setFormState(initState);
+                }}
+              >
+                Start Over
+              </StartOverButton>
+            </FriendsSummary>
           </FormSection>
         </Form>
       )}
